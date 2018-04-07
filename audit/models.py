@@ -69,7 +69,21 @@ class AuditLog(models.Model):
     """
     审计日志
     """
-    pass
+    session = models.ForeignKey("SessionLog",models.CASCADE)
+    cmd = models.TextField(null=True,blank=True)
+    date = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    def __str__(self):
+        return "%s-%s" %(self.session,self.cmd)
+
+
+class SessionLog(models.Model):
+    account = models.ForeignKey("Account",models.CASCADE)
+    host_user_bind = models.ForeignKey("HostUserBind",models.CASCADE)
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(blank=True,null=True)
+
+    def __str__(self):
+        return "%s-%s" %(self.account,self.host_user_bind)
 
 class Account(models.Model):
     """
