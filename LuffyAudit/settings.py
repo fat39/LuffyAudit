@@ -25,7 +25,7 @@ SECRET_KEY = 'h%@rjpl(1-x8moi7g04)30+lu7%e@u9$o-c$%i8j^l8n-hggr_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["1.1.1.39"]
 
 
 # Application definition
@@ -120,3 +120,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+
+
+
+SESSION_TRACKER_SCRIPT = os.path.join(BASE_DIR,"audit","backend","session_tracker.sh")

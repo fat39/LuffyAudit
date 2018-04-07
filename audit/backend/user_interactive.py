@@ -1,6 +1,10 @@
 # -*- coding:utf-8 -*-
+import string
+import random
+import subprocess
 from django.contrib.auth import authenticate
-
+#from audit import models
+#from django.conf import settings
 
 class UserShell(object):
     """用户登录堡垒机后的shell"""
@@ -57,6 +61,17 @@ class UserShell(object):
                                 if choice2 >= 0 and choice2 < len(host_bind_list):
                                     selected_host = host_bind_list[choice2]
                                     print("selected host ", selected_host)
+
+                                    s = string.ascii_lowercase + string.digits
+                                    random_tag = ''.join(random.sample(s,10))
+                                    #session_obj = models.SessionLog.objects.create(account=self.user.account,host_user_bind=selected_host)
+
+                                    cmd = "sshpass -p %s /usr/local/openssh/bin/ssh %s@%s -p %s -o StrictHostKeyChecking=no -Z %s" % (selected_host.host_user.password,selected_host.host_user.username,selected_host.host.ip_addr,selected_host.host.port,random_tag)
+                                    #session_tracker_script = "/bin/sh %s %s %s " %(settings.SESSION_TRACKER_SCRIPT,random_tag,session_obj.id)
+                                    session_tracker_script = "/bin/sh %s %s %s " %('audit/backend/session_tracker.sh',random_tag,1)
+                                    session_tracker_obj = subprocess.Popen(session_tracker_script,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                                    ssh_channel = subprocess.run(cmd,shell=True)
+                                    print(session_tracker_obj.communicate())
                             elif choice2 == "b":
                                 break
 
