@@ -3,8 +3,8 @@ import string
 import random
 import subprocess
 from django.contrib.auth import authenticate
-from audit import models
-from django.conf import settings
+#from audit import models
+#from django.conf import settings
 from audit.backend import ssh_interactive
 
 class UserShell(object):
