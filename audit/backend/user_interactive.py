@@ -7,10 +7,10 @@ from django.contrib.auth import authenticate
 #from django.conf import settings
 from audit.backend import ssh_interactive
 
-# import os
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LuffyAudit.settings")
-# import django
-# django.setup()  # 手动注册django所有app
+#import os
+#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LuffyAudit.settings")
+#import django
+#django.setup()  # 手动注册django所有app
 
 
 class UserShell(object):
