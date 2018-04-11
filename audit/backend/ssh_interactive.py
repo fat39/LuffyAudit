@@ -166,7 +166,7 @@ def ssh_session(bind_host_user,user_obj):
 
         agent_auth(t, username)
         if not t.is_authenticated():
-            manual_auth(t,username, hostname)
+            manual_auth(t,username, password)
         if not t.is_authenticated():
             print('*** Authentication failed. :(')
             t.close()
