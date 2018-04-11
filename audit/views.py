@@ -76,7 +76,9 @@ def get_token(request):
 
 
 
-
+@login_required
+def multi_cmd(request):
+    return render(request,'multi_cmd.html')
 
 
 

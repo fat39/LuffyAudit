@@ -52,9 +52,8 @@ class UserShell(object):
                 print("token length is 8")
             else:
                 time_obj = datetime.datetime.now() - datetime.timedelta(seconds=300)
-                token_objs = models.Token.objects.filter(val=user_input,date__gt=time_obj)
-                if token_objs:
-                    token_obj = token_objs.lastest()
+                token_obj = models.Token.objects.filter(val=user_input,date__gt=time_obj).first()
+                if token_obj:
                     if token_obj.val == user_input:
                         self.user = token_obj.account.user
                         return token_obj
@@ -66,7 +65,7 @@ class UserShell(object):
         """启动交互程序"""
         token_obj = self.token_auth()
         if token_obj:
-            ssh_interactive.ssh_session(token_obj, self.user)
+            ssh_interactive.ssh_session(token_obj.host_user_bind, self.user)
             exit()
 
         if self.auth():
