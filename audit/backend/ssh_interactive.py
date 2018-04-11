@@ -17,7 +17,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Paramiko; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
-
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LuffyAudit.settings")
+import django
+django.setup()  # 手动注册django所有app
 
 import base64
 from binascii import hexlify
@@ -61,7 +64,7 @@ def agent_auth(transport, username):
             print('... nope.')
 
 
-def manual_auth(t,username, hostname,password):
+def manual_auth(t,username,password):
     # default_auth = 'p'
     # auth = input('Auth by (p)assword, (r)sa key, or (d)ss key? [%s] ' % default_auth)
     # if len(auth) == 0:
@@ -177,7 +180,7 @@ def ssh_session(bind_host_user,user_obj):
         chan.invoke_shell()
         print('*** Here we go!\n')
 
-        session_obj = models.SessionLog.objects.create(account=user_obj,host_user_bind=bind_host_user)
+        session_obj = models.SessionLog.objects.create(account=user_obj.account,host_user_bind=bind_host_user)
         interactive.interactive_shell(chan,session_obj)
         chan.close()
         t.close()

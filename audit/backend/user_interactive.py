@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate
 #from django.conf import settings
 from audit.backend import ssh_interactive
 
+
 class UserShell(object):
     """用户登录堡垒机后的shell"""
 
