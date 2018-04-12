@@ -17,10 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Paramiko; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LuffyAudit.settings")
-import django
-django.setup()  # 手动注册django所有app
 
 import base64
 from binascii import hexlify
@@ -32,10 +28,14 @@ import sys
 import time
 import traceback
 from paramiko.py3compat import input
-
 import paramiko
-
 from audit import models
+
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LuffyAudit.settings")
+import django
+django.setup()  # 手动注册django所有app
+
 
 try:
     import interactive
