@@ -62,6 +62,7 @@
                                 <th>PORT</th>
                                 <th>Username</th>
                                 <th>Login</th>
+                                <th>Token</th>
                             </tr>
                         </thead>
                         <tbody id="hostlist">
@@ -79,6 +80,12 @@
 
 {% block myscript %}
     <script>
+        function GetToken(self,bind_host_id){
+            $.post("{% url 'get_token' %}",{"bind_host_id":bind_host_id,"csrfmiddlewaretoken":"{{ csrf_token }}"},function(callback){
+                console.log(callback)
+            });
+        };//end post
+
         function GetHostlist(gid,self){
             $.get("{% url 'get_host_list' %}",{"gid":gid},function(callback){
                 var data = JSON.parse(callback);
@@ -100,7 +107,8 @@
                     $(tr).append("<td>"+item.host__idc__name+"</td>")
                     $(tr).append("<td>"+item.host__port+"</td>")
                     $(tr).append("<td>"+item.host_user__username+"</td>")
-                    $(tr).append("<td>"+"Login"+"</td>")
+                    $(tr).append("<td><a class='btn btn-info' onclick=GetToken(this,'"+item.id+"');>Token</a>"+"Login"+"</td>")
+                    $(tr).append("<td></td>")
 
                     $("#hostlist").append(tr)
                 })

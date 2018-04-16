@@ -55,6 +55,21 @@ class HostUser(models.Model):
         unique_together = ("username", "password")
 
 
+class Token(models.Model):
+    host_user_bind = models.ForeignKey("HostUserBind",on_delete=models.CASCADE)
+    val = models.CharField(max_length=128)
+    account = models.ForeignKey("Account",on_delete=models.CASCADE)
+    expire = models.IntegerField("超时时间(s)",default=300)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "%s-%s" % (self.host_user_bind,self.val)
+
+    class Meta:
+        unique_together = (
+            ("host_user_bind","val"),
+        )
+
 class HostUserBind(models.Model):
     """
     绑定主机和用户
@@ -101,3 +116,7 @@ class Account(models.Model):
     name = models.CharField(max_length=64)
     host_user_bind = models.ManyToManyField("HostUserBind", blank=True)
     host_groups = models.ManyToManyField("HostGroup", blank=True)
+
+
+
+

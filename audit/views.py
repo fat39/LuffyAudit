@@ -53,7 +53,10 @@ def get_host_list(request):
         return HttpResponse(data)
 
 
-
+@login_required
+def get_token(request):
+    """ 生成token并返回 """
+    bind_host_id = request.POST.get("bind_host_id")
 
 
 
