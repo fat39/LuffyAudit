@@ -61,7 +61,7 @@ class Task(models.Model):
         (0,"cmd"),(1,"file_transfer"),
     )
     task_type = models.SmallIntegerField(choices=task_type_choice)
-    host_user_binds = models.ManyToManyField("HostUserBind")
+    # host_user_binds = models.ManyToManyField("HostUserBind")
     content = models.TextField("任务内容")
     taskout = models.IntegerField("任务超时",default=300)
     account = models.ForeignKey("Account",on_delete=models.CASCADE)
@@ -73,10 +73,10 @@ class Task(models.Model):
 class TaskLog(models.Model):
     task = models.ForeignKey("Task",on_delete=models.CASCADE)
     host_user_bind = models.ForeignKey("HostUserBind",on_delete=models.CASCADE)
-    result = models.TextField()
+    result = models.TextField(default="init...")
     date = models.DateTimeField(auto_now_add=True)
     status_choices = (
-        (0,"成功"),(1,"失败"),(2,"超时"),
+        (0,"成功"),(1,"失败"),(2,"超时"),(3,"初始化"),
     )
     status = models.IntegerField(choices=status_choices)
 

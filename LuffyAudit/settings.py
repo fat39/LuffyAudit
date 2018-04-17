@@ -129,3 +129,7 @@ STATICFILES_DIRS = (
 LOGIN_URL = '/login/'
 
 SESSION_TRACKER_SCRIPT = os.path.join(BASE_DIR,"audit","backend","session_tracker.sh")
+
+MULTI_TASK_SCRIPT = os.path.join(BASE_DIR,"audit","backend","multitask.py")
+
+MAXTASKPROCESSES = 10
