@@ -1,8 +1,11 @@
+import string
+import datetime
+import random
 import json
 from django.shortcuts import render,redirect,HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
-
+from audit import models
 
 # @login_required(login_url='/login/')  # 单独添加login页面的url
 # 或在settings.py设置全局LOGIN_URL = '/login/'
@@ -57,7 +60,19 @@ def get_host_list(request):
 def get_token(request):
     """ 生成token并返回 """
     bind_host_id = request.POST.get("bind_host_id")
-
+    time_obj = datetime.datetime.now() - datetime.timedelta(seconds=300) 
+    exist_token_objs = models.Token.objects.filter(account_id=request.user.account.id,host_user_bind_id=bind_host_id,date__gt=time_obj)
+    token_data = {}
+    if exist_token_objs:  # has token already
+        token_data = {"token":exist_token_objs[0].val}
+    else:
+        token_val = "".join(random.sample(string.ascii_lowercase+string.digits,8))
+        token_obj = models.Token.objects.create(host_user_bind_id = bind_host_id,
+            account = request.user.account,
+            val = token_val,
+            )
+        token_data = {"token":token_val}
+    return HttpResponse(json.dumps(token_data))
 
 
 

@@ -1,16 +1,21 @@
 # -*- coding:utf-8 -*-
+
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LuffyAudit.settings")
+import django
+django.setup()  # 手动注册django所有app
+
+
 import string
 import random
 import subprocess
 from django.contrib.auth import authenticate
-#from audit import models
+from audit import models
 #from django.conf import settings
 from audit.backend import ssh_interactive
+import datetime
 
-#import os
-#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LuffyAudit.settings")
-#import django
-#django.setup()  # 手动注册django所有app
+
 
 
 class UserShell(object):
@@ -37,10 +42,34 @@ class UserShell(object):
         else:
             print("Too many attemps.")
 
+    def token_auth(self):
+        count = 0
+        while count < 3:
+            user_input = input("Input your access token,press Enter if doesn't have:").strip()
+            if len(user_input) == 0:
+                return
+            if len(user_input) != 8:
+                print("token length is 8")
+            else:
+                time_obj = datetime.datetime.now() - datetime.timedelta(seconds=300)
+                token_objs = models.Token.objects.filter(val=user_input,date__gt=time_obj)
+                if token_objs:
+                    token_obj = token_objs.lastest()
+                    if token_obj.val == user_input:
+                        self.user = token_obj.account.user
+                        return token_obj
+            count += 1
+
+
+
     def start(self):
         """启动交互程序"""
-        if self.auth():
+        token_obj = self.token_auth()
+        if token_obj:
+            ssh_interactive.ssh_session(token_obj, self.user)
+            exit()
 
+        if self.auth():
            # print(self.user.account.host_user_bind.all()) # select_related
             while True:
                 host_groups = self.user.account.host_groups.all()
