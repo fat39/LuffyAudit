@@ -23,6 +23,7 @@ urlpatterns = [
     re_path("^login/$",views.acc_login),
     re_path("^logout/$",views.acc_logout),
     re_path("^hostlist/$",views.hostlist,name='hostlist'),
+    re_path("^multitask/$",views.multitask,name='multitask'),
     re_path("^multitask/cmd/$",views.multi_cmd,name='multi_cmd'),
     re_path("^api/hostlist/$",views.get_host_list,name='get_host_list'),
     re_path("^api/token/$",views.get_token,name='get_token'),

@@ -1,0 +1,130 @@
+{% extends 'index.html' %}
+
+{% block content-container %}
+    <div id="page-title">
+        <h1 class="page-header text-overflow">主机列表</h1>
+
+        <!--Searchbox-->
+        <div class="searchbox">
+            <div class="input-group custom-search-form">
+                <input type="text" class="form-control" placeholder="Search..">
+                <span class="input-group-btn">
+                    <button class="text-muted" type="button"><i class="pli-magnifi-glass"></i></button>
+                </span>
+            </div>
+        </div>
+    </div>  <!--内容页标题-->
+
+
+    <ol class="breadcrumb">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">主机管理</a></li>
+        <li class="active">批量命令</li>
+    </ol>  <!--面包导航-->
+
+
+    <div id="'page-content">
+        <div class="panel col-lg-3">
+            <div class="panel-heading">
+                <h3 class="panel-title">主机组<span>(已选<span id="selected_hosts">0</span>)</span></h3>
+            </div>
+            <div class="panel-body">
+                <ul class="list-group" id="host-groups">
+                    {% for group in request.user.account.host_groups.all %}
+                        <li class="list-group-item"><span class="badge badge-success" style="color:black;">{{ group.host_user_binds.count }}</span>
+                            <input type="checkbox" onclick="CheckAll(this);">
+                            <a onclick="DisplayHostList(this);">{{ group.name }}</a>
+                            <ul class="hide">
+                                {% for bind_host in group.host_user_binds.all %}
+                                    <li><input onclick="ShowCheckedHostCount();" type="checkbox" value="{{ bind_host.id }}">{{ bind_host.host.ip_addr }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                            <li class="list-group-item" onclick="DisplayHostList(this);"><span class="badge badge-success" style="color:black;">{{ request.user.account.host_user_bind.count }}</span>
+                                <input type="checkbox" onclick="CheckAll(this);">
+                                <a onclick="DisplayHostList(this);">未分组主机</a>
+                                <ul class="hide">
+                                    {% for bind_host in request.user.account.host_user_bind.all %}
+                                        <li><input onclick="ShowCheckedHostCount();" type="checkbox" value="{{ bind_host.id }}">{{ bind_host.host.ip_addr }}</li>
+                                {% endfor %}
+                                </ul>
+                            </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3 class="panel-title">命令</h3>
+                </div>
+                <div class="panel-body">
+                    <textarea id="cmd" class="form-control"></textarea>
+                    <input onclick="PostTask('cmd');" type="button" value="执行" class="btn btn-info pull-right">
+                    <input type="button" value="终止" class="btn btn-danger">
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3 class="panel-title">命令</h3>
+                </div>
+                <div class="panel-body">
+                    dddd
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block myscript %}
+    <script>
+        function DisplayHostList(self){
+            $(self).next().toggleClass("hide");
+        }
+
+        function CheckAll(self){
+            $(self).parent().find("ul :checkbox").prop("checked",$(self).prop("checked"))
+            ShowCheckedHostCount();
+        }
+
+        function ShowCheckedHostCount(){
+            var selected_host_count = $("#host-groups ul").find(":checked").length
+            console.log(selected_host_count)
+            $("#selected_hosts").text(selected_host_count)
+        }
+
+        function PostTask(task_type){
+            //1.验证主机列表已选，命令已输入
+            //2.提交任务到后台
+            var selected_host_ids = [];
+            var selected_host_eles = $("#host-groups ul").find(":checked")
+            $.each(selected_host_eles,function(index,ele){
+                selected_host_ids.push($(ele).val())
+            })
+            console.log(selected_host_ids)
+            if (selected_host_ids.length == 0){
+                alert("主机未选择！")
+                return false
+            }
+
+            var cmd_text = $.trim($("#cmd").val())
+            if (cmd_text.length == 0){
+                alert("未输入命令！")
+                return false
+            }
+
+            var task_data = {
+                'task_type':task_type,
+                'selected_host_ids':selected_host_ids,
+                "cmd":cmd_text,
+            }
+
+            $.post("{% url 'multitask' %}",{"csrfmiddlewaretoken":"{{ csrf_token }}","task_data":JSON.stringify(task_data)},function(callback){
+                console.log(callback)
+            })//end post
+
+        }
+
+    </script>
+{% endblock %}

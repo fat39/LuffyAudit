@@ -6,6 +6,7 @@ from django.shortcuts import render,redirect,HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from audit import models
+from audit import task_handler
 
 # @login_required(login_url='/login/')  # 单独添加login页面的url
 # 或在settings.py设置全局LOGIN_URL = '/login/'
@@ -80,6 +81,15 @@ def get_token(request):
 def multi_cmd(request):
     return render(request,'multi_cmd.html')
 
+@login_required
+def multitask(request):
+    task_obj = task_handler.Task(request)
+    if task_obj.is_valid():
+        result = task_obj.run()
+
+        return HttpResponse(json.dumps(result))
+
+    return HttpResponse(json.dumps(task_obj.errors))
 
 
 
