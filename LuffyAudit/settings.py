@@ -133,3 +133,8 @@ SESSION_TRACKER_SCRIPT = os.path.join(BASE_DIR,"audit","backend","session_tracke
 MULTI_TASK_SCRIPT = os.path.join(BASE_DIR,"audit","backend","multitask.py")
 
 MAXTASKPROCESSES = 10
+
+
+FILE_UPLOADS = os.path.join(BASE_DIR,"files_transfer","uploads")
+FILE_DOWNLOADS = os.path.join(BASE_DIR,"files_transfer","downloads")
+FILE_ZIPFILES = os.path.join(BASE_DIR,"files_transfer","zipfiles")

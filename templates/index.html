@@ -354,7 +354,7 @@
                                         <!--Submenu-->
                                         <ul class="collapse">
                                             <li><a href="{% url 'multi_cmd' %}">批量命令</a></li>
-                                            <li><a href="#">批量文件</a></li>
+                                            <li><a href="{% url 'multi_file_transfer' %}">批量文件</a></li>
                                         </ul>
                                     </li>
 
@@ -568,7 +568,7 @@
             /*$('#mainnav-menu a').click(function(){
                 $(this).parent().addClass("active-link")
             })*/  // end click
-            $("#mainnav-menu a[href='{{ request.path }}']").parent().addClass("active-link")
+            $("#mainnav-menu a[href='{{ request.path }}']").parent().addClass("active-link").parents("li").addClass("active-link").addClass("active");
         })
     </script>
 {% endblock %}

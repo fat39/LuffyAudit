@@ -26,7 +26,7 @@ class Task(object):
                 self.errors.append({"invalid_argument": "cmd or host_list is empty."})
             elif self.task_data.get("task_type") == "file_transfer":
                 '''待补充'''
-                return
+                return True
                 self.errors.append({"invalid_argument": "cmd or host_list is empty."})
             else:
                 self.errors.append({"invalid_argument": "task_type is invalid."})
@@ -66,18 +66,43 @@ class Task(object):
         # for host_id in self.task_data.get("selected_host_ids"):
         #     t = Thread(target=self.run_cmd,args=(host_id,self.task_data.get("cmd")))
         #     t.start()
-        multitask_obj = subprocess.Popen("%s %s" % (settings.MULTI_TASK_SCRIPT,task_obj.id),shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        cmd_str = "%s %s" % (settings.MULTI_TASK_SCRIPT,task_obj.id)
+        multitask_obj = subprocess.Popen(cmd_str,
+                                         shell=True,
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
         # print(multitask_obj.stdout.read(),multitask_obj.stderr.read().decode("gbk"))
 
-        return task_obj.id
+        return task_obj
 
-    def run_cmd(self):
-        pass
 
     def file_transfer(self):
         """批量文件"""
-        pass
 
+        task_obj = models.Task.objects.create(
+            task_type = 1,
+            account = self.request.user.account,
+            content = json.dumps(self.task_data),
+        )
+        tasklog_objs = []
+        host_ids = set(self.task_data.get("selected_host_ids"))
+        for host_id in host_ids:
+            tasklog_objs.append(
+                models.TaskLog(
+                    task_id = task_obj.id,
+                    host_user_bind_id = host_id,
+                    status = 3,
+                )
+            )
+        models.TaskLog.objects.bulk_create(tasklog_objs,100)  # 每100条commit一次
+
+        cmd_str = "%s %s" % (settings.MULTI_TASK_SCRIPT,task_obj.id)
+        multitask_obj = subprocess.Popen(cmd_str,
+                                         shell=True,
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
+        # print(multitask_obj.stdout.read(),multitask_obj.stderr.read().decode("gbk"))
+        return task_obj
 
 
 

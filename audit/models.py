@@ -63,12 +63,15 @@ class Task(models.Model):
     task_type = models.SmallIntegerField(choices=task_type_choice)
     # host_user_binds = models.ManyToManyField("HostUserBind")
     content = models.TextField("任务内容")
-    taskout = models.IntegerField("任务超时",default=300)
+    timeout = models.IntegerField("任务超时",default=120)
     account = models.ForeignKey("Account",on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     # success_num = models.SmallIntegerField()
     # failed_num = models.SmallIntegerField()
     # total_num = models.SmallIntegerField()
+
+    def __str__(self):
+        return "%s-%s" % (self.task_type,self.content)
 
 class TaskLog(models.Model):
     task = models.ForeignKey("Task",on_delete=models.CASCADE)
@@ -84,6 +87,7 @@ class TaskLog(models.Model):
         unique_together = (
             ("task","host_user_bind"),
         )
+
 
 
 

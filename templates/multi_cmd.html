@@ -24,35 +24,7 @@
 
 
     <div id="'page-content">
-        <div class="panel col-lg-3">
-            <div class="panel-heading">
-                <h3 class="panel-title">主机组<span>(已选<span id="selected_hosts">0</span>)</span></h3>
-            </div>
-            <div class="panel-body">
-                <ul class="list-group" id="host-groups">
-                    {% for group in request.user.account.host_groups.all %}
-                        <li class="list-group-item"><span class="badge badge-success" style="color:black;">{{ group.host_user_binds.count }}</span>
-                            <input type="checkbox" onclick="CheckAll(this);">
-                            <a onclick="DisplayHostList(this);">{{ group.name }}</a>
-                            <ul class="hide">
-                                {% for bind_host in group.host_user_binds.all %}
-                                    <li><input onclick="ShowCheckedHostCount();" type="checkbox" value="{{ bind_host.id }}">{{ bind_host.host.ip_addr }}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                        {% endfor %}
-                            <li class="list-group-item" onclick="DisplayHostList(this);"><span class="badge badge-success" style="color:black;">{{ request.user.account.host_user_bind.count }}</span>
-                                <input type="checkbox" onclick="CheckAll(this);">
-                                <a onclick="DisplayHostList(this);">未分组主机</a>
-                                <ul class="hide">
-                                    {% for bind_host in request.user.account.host_user_bind.all %}
-                                        <li><input onclick="ShowCheckedHostCount();" type="checkbox" value="{{ bind_host.id }}">{{ bind_host.host.ip_addr }}</li>
-                                {% endfor %}
-                                </ul>
-                            </li>
-                </ul>
-            </div>
-        </div>
+        {% include "components/hostgroups.html" %}
         <div class="col-lg-9">
             <div class="panel">
                 <div class="panel-heading">
@@ -64,128 +36,12 @@
                     <input type="button" value="终止" class="btn btn-danger">
                 </div>
             </div>
-            <div id="task_result_panel" class="panel">
-                <div class="panel-heading">
-                    <h3 class="panel-title">任务结果</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="progress">
-                        <div id="task_progress" style="width: 0%;" class="progress-bar progress-bar-info"></div>
-                    </div>
-                    <div id="task_result"></div>
-                </div>
-            </div>
+            {% include 'components/taskresult.html' %}
         </div>
     </div>
 
 {% endblock %}
 
 {% block myscript %}
-    <script>
-        function DisplayHostList(self){
-            $(self).next().toggleClass("hide");
-        }
-
-        function CheckAll(self){
-            $(self).parent().find("ul :checkbox").prop("checked",$(self).prop("checked"))
-            ShowCheckedHostCount();
-        }
-
-        function ShowCheckedHostCount(){
-            var selected_host_count = $("#host-groups ul").find(":checked").length
-            console.log(selected_host_count)
-            $("#selected_hosts").text(selected_host_count)
-        }
-
-        function GetTaskResult(task_id,task_timeout){
-            $.getJSON("{% url 'get_task_result' %}",{"task_id":task_id},function(callback){
-                console.log(callback)
-
-                var result_ele = ''
-                var all_task_finished = true
-                var finished_task_count = 0
-                $.each(callback,function(index,item){
-                    var p_ele = "<p>" + item.host_user_bind__host__hostname + "(" + item.host_user_bind__host__ip_addr +")------" +
-                            item.status + "</p>"
-                            item.status + "</p>"
-                    var res_ele = "<pre>" + item.result + "</pre>"
-                    var single_result = p_ele + res_ele;
-                    result_ele += single_result
-
-                    if (item.status == 3){
-                        all_task_finished = false;
-                    }else{
-                        // task not finished yet
-                        finished_task_count += 1
-                    }
-                })
-                {#if (task_timeout_counter < task_timeout){#}
-                if (task_timeout_counter < 10){
-                    task_timeout_counter += 2;
-                }else{
-                    all_task_finished = true;
-                    $.niftyNoty({
-                        type: 'danger',
-                        container : '#task_result_panel',
-                        html : '<h4 class="alert-title">Task timed out!</h4><p class="alert-message">The task has timeouted!</p><div class="mar-top"><button type="button" class="btn btn-info" data-dismiss="noty">Close this notification</button></div>',
-                        closeBtn : false
-                    });
-                }
-
-                if (all_task_finished){
-                    clearInterval(result_timer);
-                    console.log("timmer cancled...")
-                }
-
-                $("#task_result").html(result_ele)
-                // set progress bar
-
-                var total_finished_percent = parseInt(finished_task_count / callback.length * 100);
-                $("#task_progress").text(total_finished_percent + '%').css("width",total_finished_percent + '%')
-
-            })
-        }
-
-
-        function PostTask(task_type){
-            //1.验证主机列表已选，命令已输入
-            //2.提交任务到后台
-            var selected_host_ids = [];
-            var selected_host_eles = $("#host-groups ul").find(":checked")
-            $.each(selected_host_eles,function(index,ele){
-                selected_host_ids.push($(ele).val())
-            })
-            console.log(selected_host_ids)
-            if (selected_host_ids.length == 0){
-                alert("主机未选择！")
-                return false
-            }
-
-            var cmd_text = $.trim($("#cmd").val())
-            if (cmd_text.length == 0){
-                alert("未输入命令！")
-                return false
-            }
-
-            var task_data = {
-                'task_type':task_type,
-                'selected_host_ids':selected_host_ids,
-                "cmd":cmd_text,
-            }
-
-            $.post("{% url 'multitask' %}",{"csrfmiddlewaretoken":"{{ csrf_token }}","task_data":JSON.stringify(task_data)},function(callback){
-                console.log(callback);
-                var callback = JSON.parse(callback);
-
-                GetTaskResult(callback.task_id,callback.timeout);
-                task_timeout_counter = 0
-                result_timer = setInterval(function(){
-                    GetTaskResult(callback.task_id,callback.timeout);
-                },2000)
-
-
-            })//end post
-        }
-
-    </script>
+    {% include "components/multitask_js.html" %}
 {% endblock %}
